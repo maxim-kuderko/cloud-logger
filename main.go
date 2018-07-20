@@ -14,7 +14,7 @@ func main() {
 	done := make(chan os.Signal, 1)
 	signal.Notify(done)
 
-	reg := initRegistry()
+	reg := registry.NewRegistry()
 	routes := defineRoutes(reg)
 	middleware := middlewares.NewMiddlwares(middlewares.Logging)
 	go fasthttp.ListenAndServe(":8000", middleware.Then(routes))
@@ -24,7 +24,7 @@ func main() {
 }
 
 func defineRoutes(registry *registry.Registry) fasthttp.RequestHandler {
-	m := func(ctx *fasthttp.RequestCtx) {
+	return func(ctx *fasthttp.RequestCtx) {
 		switch string(ctx.Path()) {
 		case "/is_alive":
 			handlerWrapper(handlers.IsAlive, registry)(ctx)
@@ -32,15 +32,10 @@ func defineRoutes(registry *registry.Registry) fasthttp.RequestHandler {
 			ctx.Error("not found", fasthttp.StatusNotFound)
 		}
 	}
-	return m
 }
 
 func handlerWrapper(handler func(ctx *fasthttp.RequestCtx, registry *registry.Registry), registry *registry.Registry) func(ctx *fasthttp.RequestCtx) {
 	return func(ctx *fasthttp.RequestCtx) {
 		handler(ctx, registry)
 	}
-}
-
-func initRegistry() *registry.Registry {
-	return &registry.Registry{}
 }
