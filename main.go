@@ -28,6 +28,8 @@ func defineRoutes(registry *registry.Registry) fasthttp.RequestHandler {
 		switch string(ctx.Path()) {
 		case "/is_alive":
 			handlerWrapper(handlers.IsAlive, registry)(ctx)
+		case "/push":
+			handlerWrapper(handlers.Push, registry)(ctx)
 		default:
 			ctx.Error("not found", fasthttp.StatusNotFound)
 		}

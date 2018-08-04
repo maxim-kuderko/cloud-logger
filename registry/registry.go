@@ -12,15 +12,15 @@ type Registry struct {
 
 func NewRegistry() *Registry {
 	db := initializers.NewDb()
-	ds, en := initServices(db)
+	ds := initServices(db)
 	return &Registry{
 		Ds: ds,
 	}
 }
 
-func initServices(db *initializers.Db) (*services.DataSaver, *services.Enricher) {
+func initServices(db *initializers.Db) (*services.DataSaver) {
 	tp := services.NewTopicProvider(db)
 	en := services.NewEnricher()
-	ds := services.NewDataSaver(tp)
-	return ds, en
+	ds := services.NewDataSaver(tp,en)
+	return ds
 }
