@@ -1,9 +1,9 @@
 package services
 
 import (
+	"fmt"
 	"github.com/maxim-kuderko/cloud-logger/initializers"
 	"github.com/maxim-kuderko/storage-buffer"
-	"fmt"
 )
 
 type TopicProvider struct {

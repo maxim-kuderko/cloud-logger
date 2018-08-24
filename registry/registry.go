@@ -18,9 +18,9 @@ func NewRegistry() *Registry {
 	}
 }
 
-func initServices(db *initializers.Db) (*services.DataSaver) {
+func initServices(db *initializers.Db) *services.DataSaver {
 	tp := services.NewTopicProvider(db)
 	en := services.NewEnricher()
-	ds := services.NewDataSaver(tp,en)
+	ds := services.NewDataSaver(tp, en)
 	return ds
 }

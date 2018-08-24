@@ -1,8 +1,8 @@
 package services
 
 import (
-	"github.com/maxim-kuderko/cloud-logger/enrichers"
 	"fmt"
+	"github.com/maxim-kuderko/cloud-logger/enrichers"
 )
 
 type Enricher struct {
