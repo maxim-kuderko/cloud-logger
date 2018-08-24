@@ -20,6 +20,7 @@ func main() {
 	go fasthttp.ListenAndServe(":8000", middleware.Then(routes))
 
 	<-done
+	reg.Ds.Close()
 	fmt.Println("exiting")
 }
 

@@ -22,7 +22,7 @@ func NewDataSaver(provider *TopicProvider, enricher *Enricher) *DataSaver {
 func (ds *DataSaver) Write(topic string, headers []byte, body []byte) error {
 	log.Println(topic, " | ", string(headers), " | ", string(body))
 	// find topic
-	t, err := ds.provider.provide(topic)
+	t, err := ds.provider.Provide(topic)
 	if err != nil {
 		return err
 	}
@@ -38,4 +38,9 @@ func (ds *DataSaver) Write(topic string, headers []byte, body []byte) error {
 		return err
 	}
 	return nil
+}
+
+
+func (ds *DataSaver) Close(){
+	ds.stg.Shutdown()
 }
