@@ -20,14 +20,13 @@ func NewDataSaver(provider *TopicProvider, enricher *Enricher) *DataSaver {
 }
 
 func (ds *DataSaver) Write(topic string, headers []byte, body []byte) error {
-	log.Println(topic, " | ", string(headers), " | ", string(body))
 	// find topic
 	t, err := ds.provider.Provide(topic)
 	if err != nil {
 		return err
 	}
 	// enrich
-	data, err := ds.en.Do(map[string][]byte{"body": body, "headers": headers}, []map[string]string{{"name": "set-body", "opt": "val"}, {"name": "add-headers", "opt": "val"}})
+	data, err := ds.en.Do(map[string][]byte{"body": body, "headers": headers}, []map[string]string{{"name": "set-body", "opt": "val"}})
 	if err != nil {
 		return err
 	}

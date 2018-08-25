@@ -34,7 +34,7 @@ func (tow *TopicOptionWrapper) update(opt *storage_buffer.TopicOptions) {
 }
 
 func (tow *TopicOptionWrapper) shouldUpdate(maxTopicAge time.Duration) bool {
-	tow.m.RUnlock()
+	tow.m.RLock()
 	defer tow.m.RUnlock()
 	if time.Now().Sub(tow.updatedAt) >= maxTopicAge {
 		return true
@@ -46,31 +46,26 @@ func NewTopicProvider(db *initializers.Db, maxTopicAge time.Duration) *TopicProv
 	return &TopicProvider{
 		db:          db,
 		maxTopicAge: maxTopicAge,
+		cache: make(map[string]*TopicOptionWrapper),
 	}
 }
 
-func (tp *TopicProvider) Provide(topicName string) (*storage_buffer.TopicOptions, error) {
-	tow, err := tp.loadOrStore(topicName)
+func (tp *TopicProvider) Provide(topicId string) (*storage_buffer.TopicOptions, error) {
+	tow, err := tp.loadOrStore(topicId)
 	if err != nil && tow == nil{
 		return nil, err
 	}
 	return tow.options(), err
 }
 
-func (tp *TopicProvider) loadOrStore(topicName string) (*TopicOptionWrapper, error) {
-	v, ok := tp.safeRead(topicName)
-	if !ok {
-		v, err := tp.safeInitTow(topicName)
+func (tp *TopicProvider) loadOrStore(topicId string) (*TopicOptionWrapper, error) {
+	var err error
+	v, ok := tp.safeRead(topicId)
+	if !ok || v.shouldUpdate(tp.maxTopicAge) {
+		v, err = tp.safeInitTow(topicId)
 		if err != nil {
 			return v, err
 		}
-	}
-	if v.shouldUpdate(tp.maxTopicAge) {
-		to, err := tp.getFromDb(topicName)
-		if err != nil {
-			return v, err
-		}
-		v.update(to)
 	}
 	return v, nil
 }
@@ -87,21 +82,19 @@ func (tp *TopicProvider) safeInitTow(key string) (*TopicOptionWrapper, error){
 	tp.m.Lock()
 	defer tp.m.Unlock()
 	v, ok := tp.cache[key]
-	if ok {
+	if ok && !v.shouldUpdate(tp.maxTopicAge) {
 		return v, nil
 	}
 	to, err := tp.getFromDb(key)
 	if err != nil {
-		return nil, err
+		return v, err
 	}
-	v = &TopicOptionWrapper{
-		opt:       to,
-		updatedAt: time.Now(),
-	}
-	tp.cache[key] = v
-	return v, nil
+	tp.cache[key] = to
+	return to, nil
 }
 
-func (tp *TopicProvider) getFromDb(key string) (*storage_buffer.TopicOptions, error) {
+func (tp *TopicProvider) getFromDb(key string) (*TopicOptionWrapper, error) {
+	return &TopicOptionWrapper{
 
+	}, nil
 }

@@ -1,8 +1,22 @@
 package initializers
 
+import (
+	"database/sql"
+	"log"
+)
+
 type Db struct {
+	conn *sql.DB
 }
 
-func NewDb() *Db {
-	return &Db{}
+func NewDb(DSN string) *Db {
+	db, err := sql.Open("mysql", DSN)
+	db.SetMaxIdleConns(1000)
+	db.SetMaxOpenConns(1000)
+	if err != nil {
+		log.Fatal(err)
+	}
+	return &Db{
+		conn: db,
+	}
 }
