@@ -1,11 +1,11 @@
 package enrichers
 
-func SetBody(output []byte, data map[string][]byte, params map[string]string) ([]byte, error) {
-	output = data[`body`]
+func SetBody(output *enrichedData, data map[string][]byte, params map[string]string) (*enrichedData, error) {
+	output.Body = string(data[`data`])
 	return output, nil
 }
 
-func AddHeaders(output []byte, data map[string][]byte, params map[string]string) ([]byte, error) {
-	output = append(output, data[`headers`]...)
+func AddHeaders(output *enrichedData, data map[string][]byte, params map[string]string) (*enrichedData, error) {
+	output.Headers = string(data[`headers`])
 	return output, nil
 }

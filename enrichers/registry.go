@@ -2,7 +2,7 @@ package enrichers
 
 type Registry map[string]Enricher
 
-type Enricher func(output []byte, data map[string][]byte, params map[string]string) ([]byte, error)
+type Enricher func(output *enrichedData , data map[string][]byte, params map[string]string) (*enrichedData, error)
 
 func (r Registry) Add(name string, enricher Enricher) {
 	r[name] = enricher

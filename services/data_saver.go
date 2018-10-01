@@ -1,20 +1,21 @@
 package services
 
 import (
+	"github.com/maxim-kuderko/cloud-logger/enrichers"
 	"github.com/maxim-kuderko/storage-buffer"
-	"log"
+	"time"
 )
 
 type DataSaver struct {
 	provider *TopicProvider
 	stg      *storage_buffer.Collection
-	en       *Enricher
+	en       *enrichers.EnricherManager
 }
 
-func NewDataSaver(provider *TopicProvider, enricher *Enricher) *DataSaver {
+func NewDataSaver(provider *TopicProvider, enricher *enrichers.EnricherManager) *DataSaver {
 	return &DataSaver{
 		provider: provider,
-		stg:      storage_buffer.NewCollection(1024 * 1024 * 1024 * 10),
+		stg:      storage_buffer.NewCollection(1024 * 1024 * 1024 * 10, time.Minute * 2),
 		en:       enricher,
 	}
 }
@@ -31,8 +32,11 @@ func (ds *DataSaver) Write(topic string, headers []byte, body []byte) error {
 		return err
 	}
 	// push to storage
-	log.Println(string(data))
-	_, err = ds.stg.Write(t, data)
+	b, err := data.Serialize(`json`)
+	if err != nil{
+		return err
+	}
+	_, err = ds.stg.Write(t,data.Partitions, b)
 	if err != nil {
 		return err
 	}

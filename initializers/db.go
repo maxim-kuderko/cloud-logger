@@ -20,3 +20,7 @@ func NewDb(DSN string) *Db {
 		conn: db,
 	}
 }
+
+func (db *Db) Prepare(q string) (*sql.Stmt,error){
+	return db.conn.Prepare(q)
+}
